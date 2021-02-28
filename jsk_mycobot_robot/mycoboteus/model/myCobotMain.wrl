@@ -1,0 +1,284 @@
+#VRML V2.0 utf8
+
+PROTO Joint [
+  exposedField     SFVec3f      center              0 0 0
+  exposedField     MFNode       children            []
+  exposedField     MFFloat      llimit              []
+  exposedField     MFFloat      lvlimit             []
+  exposedField     SFRotation   limitOrientation    0 0 1 0
+  exposedField     SFString     name                ""
+  exposedField     SFRotation   rotation            0 0 1 0
+  exposedField     SFVec3f      scale               1 1 1
+  exposedField     SFRotation   scaleOrientation    0 0 1 0
+  exposedField     MFFloat      stiffness           [ 0 0 0 ]
+  exposedField     SFVec3f      translation         0 0 0
+  exposedField     MFFloat      ulimit              []
+  exposedField     MFFloat      uvlimit             []
+  exposedField     SFString     jointType           ""
+  exposedField     SFInt32      jointId             -1
+  exposedField     SFVec3f      jointAxis           0 0 1
+
+  exposedField     SFFloat      gearRatio           1
+  exposedField     SFFloat      rotorInertia        0
+  exposedField     SFFloat      rotorResistor       0
+  exposedField     SFFloat      torqueConst         1
+  exposedField     SFFloat      encoderPulse        1
+  exposedField     MFFloat      climit              []
+]
+{
+  Transform {
+    center           IS center
+    children         IS children
+    rotation         IS rotation
+    scale            IS scale
+    scaleOrientation IS scaleOrientation
+    translation      IS translation
+  }
+}
+
+PROTO Segment [
+  field           SFVec3f     bboxCenter        0 0 0
+  field           SFVec3f     bboxSize          -1 -1 -1
+  exposedField    SFVec3f     centerOfMass      0 0 0
+  exposedField    MFNode      children          [ ]
+  exposedField    SFNode      coord             NULL
+  exposedField    MFNode      displacers        [ ]
+  exposedField    SFFloat     mass              0
+  exposedField    MFFloat     momentsOfInertia  [ 0 0 0 0 0 0 0 0 0 ]
+  exposedField    SFString    name              ""
+  eventIn         MFNode      addChildren
+  eventIn         MFNode      removeChildren
+]
+{
+  Group {
+    addChildren    IS addChildren
+    bboxCenter     IS bboxCenter
+    bboxSize       IS bboxSize
+    children       IS children
+    removeChildren IS removeChildren
+  }
+}
+
+PROTO Surface [
+ field   SFVec3f bboxCenter 0 0 0
+ field   SFVec3f bboxSize   -1 -1 -1
+ field   MFNode  visual     [ ]
+ field   MFNode  collision  [ ]
+ eventIn MFNode  addChildren
+ eventIn MFNode  removeChildren
+]
+{
+  Group {
+    addChildren    IS addChildren
+    bboxCenter     IS bboxCenter
+    bboxSize       IS bboxSize
+    children       IS visual
+    removeChildren IS removeChildren
+  }
+}
+
+PROTO Humanoid [
+  field           SFVec3f    bboxCenter            0 0 0
+  field           SFVec3f    bboxSize              -1 -1 -1
+  exposedField    SFVec3f    center                0 0 0
+  exposedField    MFNode     humanoidBody          [ ]
+  exposedField    MFString   info                  [ ]
+  exposedField    MFNode     joints                [ ]
+  exposedField    SFString   name                  ""
+  exposedField    SFRotation rotation              0 0 1 0
+  exposedField    SFVec3f    scale                 1 1 1
+  exposedField    SFRotation scaleOrientation      0 0 1 0
+  exposedField    MFNode     segments              [ ]
+  exposedField    MFNode     sites                 [ ]
+  exposedField    SFVec3f    translation           0 0 0
+  exposedField    SFString   version               "1.1"
+  exposedField    MFNode     viewpoints            [ ]
+]
+{
+  Transform {
+    bboxCenter       IS bboxCenter
+    bboxSize         IS bboxSize
+    center           IS center
+    rotation         IS rotation
+    scale            IS scale
+    scaleOrientation IS scaleOrientation
+    translation      IS translation
+    children [
+      Group {
+        children IS viewpoints
+      }
+    ]
+  }
+}
+
+PROTO ExtraJoint [
+  exposedField SFString link1Name ""
+  exposedField SFString link2Name ""
+  exposedField SFVec3f  link1LocalPos 0 0 0
+  exposedField SFVec3f  link2LocalPos 0 0 0
+  exposedField SFString jointType "xyz"
+  exposedField SFVec3f  jointAxis 1 0 0
+]
+{
+}
+
+
+
+DEF myCobot Humanoid {
+  humanoidBody [
+    DEF BASE Joint {
+      jointType "free"
+      translation 0.0 0.0 0.0
+      rotation 0 1 0 0
+      children [
+        DEF joint1 Segment {
+          mass 0
+          centerOfMass 0 0 0
+          momentsOfInertia [1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0]
+          children [
+            Inline { url "joint1.wrl" }
+          ]
+        } # End of joint1
+
+        DEF joint2_to_joint1 Joint {
+          jointId 0
+          jointType "rotate"
+          jointAxis 0 0 1
+          ulimit [3.14159]
+          llimit [-3.14]
+          translation 0 0 0.0706
+          children [
+            DEF joint2 Segment {
+              mass 0
+              centerOfMass 0 0 0
+              momentsOfInertia [1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0]
+              children [
+                Inline { url "joint2.wrl" }
+              ]
+            } # End of joint2
+
+            DEF joint3_to_joint2 Joint {
+              jointId 1
+              jointType "rotate"
+              jointAxis 1 0 0
+              ulimit [3.14159]
+              llimit [-3.14]
+              translation 0.03256 0 0.05976
+              children [
+                DEF joint3 Segment {
+                  mass 0
+                  centerOfMass 0 0 0
+                  momentsOfInertia [1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0]
+                  children [
+                    Inline { url "joint3.wrl" }
+                  ]
+                } # End of joint3
+
+                DEF joint4_to_joint3 Joint {
+                  jointId 2
+                  jointType "rotate"
+                  jointAxis 1 0 0
+                  ulimit [3.14159]
+                  llimit [-3.14]
+                  translation 0.00272 0 0.1104
+                  children [
+                    DEF joint4 Segment {
+                      mass 0
+                      centerOfMass 0 0 0
+                      momentsOfInertia [1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0]
+                      children [
+                        Inline { url "joint4.wrl" }
+                      ]
+                    } # End of joint4
+
+                    DEF joint5_to_joint4 Joint {
+                      jointId 3
+                      jointType "rotate"
+                      jointAxis 1 0 0
+                      ulimit [3.14159]
+                      llimit [-3.14]
+                      translation -0.00164 0 0.096
+                      children [
+                        DEF joint5 Segment {
+                          mass 0
+                          centerOfMass 0 0 0
+                          momentsOfInertia [1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0]
+                          children [
+                            Inline { url "joint5.wrl" }
+                          ]
+                        } # End of joint5
+
+                        DEF joint6_to_joint5 Joint {
+                          jointId 4
+                          jointType "rotate"
+                          jointAxis 0 0 1
+                          ulimit [3.14159]
+                          llimit [-3.14]
+                          translation 0.0288 0 0.02976
+                          children [
+                            DEF joint6 Segment {
+                              mass 0
+                              centerOfMass 0 0 0
+                              momentsOfInertia [1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0]
+                              children [
+                                Inline { url "joint6.wrl" }
+                              ]
+                            } # End of joint6
+
+                            DEF joint6output_to_joint6 Joint {
+                              jointId 5
+                              jointType "rotate"
+                              jointAxis 0 1 0
+                              ulimit [3.14159]
+                              llimit [-3.14]
+                              translation 0 0.0456 0.03792
+                              children [
+                                DEF joint6_flange Segment {
+                                  mass 0
+                                  centerOfMass 0 0 0
+                                  momentsOfInertia [1.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0]
+                                  children [
+                                    Shape {
+                                      geometry Cylinder {
+                                        radius 0.02
+                                        height 0.005
+                                      }
+                                    }
+                                  ]
+                                } # End of joint6_flange
+                              ]
+                            } # End of joint6output_to_joint6
+                          ]
+                        } # End of joint6_to_joint5
+                      ]
+                    } # End of joint5_to_joint4
+                  ]
+                } # End of joint4_to_joint3
+              ]
+            } # End of joint3_to_joint2
+          ]
+        } # End of joint2_to_joint1
+      ]
+    } # End of BASE
+  ]
+  joints [
+    USE BASE,
+    USE joint2_to_joint1,
+    #USE joint3_to_joint2,
+    #USE joint4_to_joint3,
+    #USE joint5_to_joint4,
+    #USE joint6_to_joint5,
+    #USE joint6output_to_joint6
+  ]
+
+  segments [
+    USE joint1,
+    USE joint2,
+    #USE joint3,
+    #USE joint4,
+    #USE joint5,
+    #USE joint6,
+    #USE joint6_flange,
+  ]
+  
+}
